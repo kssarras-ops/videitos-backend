@@ -72,4 +72,22 @@ async def get_feed():
 # Este bloque lee el puerto que Render te asigne automáticamente
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
+
     uvicorn.run(app, host="0.0.0.0", port=port)
+    @app.get("/videos/")
+async def listar_videos():
+    import os
+    # Si la carpeta no existe, devolvemos lista vacía
+    if not os.path.exists("videos_recibidos"):
+        return {"videos": []}
+    
+    videos = os.listdir("videos_recibidos")
+    # Generamos la URL completa para cada video para que Flutter los pueda abrir
+    links = [f"https://videitos-backend.onrender.com/descargar/{v}" for v in videos]
+    return {"videos": links}
+
+@app.get("/descargar/{nombre_video}")
+async def descargar_video(nombre_video: str):
+    from fastapi.responses import FileResponse
+    path = f"videos_recibidos/{nombre_video}"
+    return FileResponse(path)
