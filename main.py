@@ -7,6 +7,19 @@ import uuid
 import uvicorn
 
 app = FastAPI()
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI()
+
+# AÑADE ESTO:
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+2. Cómo correr la App sin
 
 # 1. CONFIGURACIÓN DE SEGURIDAD (CORS) 
 # ¡IMPORTANTE! Esto permite que tu App de Flutter (Web) se conecte a Render
@@ -91,3 +104,4 @@ async def descargar_video(nombre_video: str):
     from fastapi.responses import FileResponse
     path = f"videos_recibidos/{nombre_video}"
     return FileResponse(path)
+
