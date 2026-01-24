@@ -6,30 +6,4 @@ psycopg2-binary
 python-dotenv
 pydantic
 cloudinary
-import cloudinary
-import cloudinary.uploader
-from fastapi import FastAPI, File, UploadFile
-# ... tus otros imports
-
-# Configuración de Cloudinary
-cloudinary.config( 
-  cloud_name = "TU_CLOUD_NAME", 
-  api_key = "TU_API_KEY", 
-  api_secret = "TU_API_SECRET" 
-)
-
-@app.post("/subir-video")
-async def subir_video(file: UploadFile = File(...)):
-    # Subida directa a Cloudinary
-    upload_result = cloudinary.uploader.upload(
-        file.file, 
-        resource_type = "video",
-        folder = "videitos_tiktok"
-    )
-    
-    # Cloudinary nos devuelve la URL segura del video
-    video_url = upload_result['secure_url']
-    
-    # Aquí podrías guardar 'video_url' en una base de datos más adelante
-    return {"mensaje": "exito", "url": video_url}
 
