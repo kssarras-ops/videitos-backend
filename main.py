@@ -41,6 +41,17 @@ async def root():
     return {"mensaje": "Servidor VideitosApp en la Nube (Render) funcionando"}
 
 @app.post("/subir-video/")
+async def subir_video(file: UploadFile = File(...)):
+    import os
+    # ESTO ES CLAVE: Crea la carpeta si Render la borró
+    if not os.path.exists("videos_recibidos"):
+        os.makedirs("videos_recibidos")
+    
+    file_path = f"videos_recibidos/{file.filename}"
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+    
+    return {"video_id": file.filename, "mensaje": "Guardado con éxito"}
 async def upload_video(file: UploadFile = File(...)):
     try:
         # Extraer extensión original
@@ -101,5 +112,6 @@ async def descargar_video(nombre_video: str):
     from fastapi.responses import FileResponse
     path = f"videos_recibidos/{nombre_video}"
     return FileResponse(path)
+
 
 
