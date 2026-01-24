@@ -96,11 +96,17 @@ if __name__ == "__main__":
 
     uvicorn.run(app, host="0.0.0.0", port=port)
     @app.get("/videos/")
+@app.get("/videos/")
 async def listar_videos():
     import os
-    # Si la carpeta no existe, devolvemos lista vacía
+    # Si la carpeta no existe, devolvemos lista vacía pero sin error
     if not os.path.exists("videos_recibidos"):
         return {"videos": []}
+    
+    videos = os.listdir("videos_recibidos")
+    # Asegúrate de que esta URL sea la de TU proyecto en Render
+    links = [f"https://videitos-backend.onrender.com/descargar/{v}" for v in videos]
+    return {"videos": links}
     
     videos = os.listdir("videos_recibidos")
     # Generamos la URL completa para cada video para que Flutter los pueda abrir
@@ -112,6 +118,7 @@ async def descargar_video(nombre_video: str):
     from fastapi.responses import FileResponse
     path = f"videos_recibidos/{nombre_video}"
     return FileResponse(path)
+
 
 
 
