@@ -1,9 +1,7 @@
 import cloudinary
 import cloudinary.uploader
-from fastapi import FastAPI, File, UploadFile
-# ... tus otros imports
+from fastapi import FastAPI, File, UploadF
 
-# Configuración de Cloudinary
 cloudinary.config( 
   cloud_name = "TU_CLOUD_NAME", 
   api_key = "TU_API_KEY", 
@@ -19,11 +17,10 @@ async def subir_video(file: UploadFile = File(...)):
         folder = "videitos_tiktok"
     )
     
-    # Cloudinary nos devuelve la URL segura del video
     video_url = upload_result['secure_url']
     
-    # Aquí podrías guardar 'video_url' en una base de datos más adelante
     return {"mensaje": "exito", "url": video_url}
+   
 
 
 
