@@ -18,8 +18,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 1. CONFIGURACIÓN DE SEGURIDAD (CORS) 
-# ¡IMPORTANTE! Esto permite que tu App de Flutter (Web) se conecte a Render
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -28,13 +27,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 2. CARPETA DE ALMACENAMIENTO
-# En Render, esto es temporal en el plan gratuito
+
+
 UPLOAD_DIR = "videos_aprobados"
 if not os.path.exists(UPLOAD_DIR):
     os.makedirs(UPLOAD_DIR)
 
-# --- RUTAS ---
+
 
 @app.get("/")
 async def root():
@@ -43,7 +42,7 @@ async def root():
 @app.post("/subir-video/")
 async def subir_video(file: UploadFile = File(...)):
     import os
-    # ESTO ES CLAVE: Crea la carpeta si Render la borró
+    
     if not os.path.exists("videos_recibidos"):
         os.makedirs("videos_recibidos")
     
@@ -54,15 +53,15 @@ async def subir_video(file: UploadFile = File(...)):
     return {"video_id": file.filename, "mensaje": "Guardado con éxito"}
 async def upload_video(file: UploadFile = File(...)):
     try:
-        # Extraer extensión original
+    
         nombre_original = file.filename
         extension = nombre_original.split(".")[-1] if "." in nombre_original else "mp4"
         
-        # Nombre único para evitar conflictos en el servidor
+        
         nombre_unico = f"{uuid.uuid4()}.{extension}"
         ruta_final = os.path.join(UPLOAD_DIR, nombre_unico)
 
-        # Guardar archivo
+        
         with open(ruta_final, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
             
@@ -88,28 +87,38 @@ async def get_video(video_id: str):
 async def get_feed():
     archivos = os.listdir(UPLOAD_DIR)
     return {"videos": archivos}
-
-# 3. LANZADOR PARA RENDER
-# Este bloque lee el puerto que Render te asigne automáticamente
+    
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
 
     uvicorn.run(app, host="0.0.0.0", port=port)
-    @app.get("/videos/")
-@app.get("/videos/")
+    @app.get("/videos") 
 async def listar_videos():
-    import os
-    # Si la carpeta no existe, devolvemos lista vacía pero sin error
+import os
     if not os.path.exists("videos_recibidos"):
-        return {"videos": []}
+        os.makedirs("videos_recibidos")
+    videos = os.listdir("videos_recibidos")
+    links = [f"https://videitos-backend.onrender.com/descargar/{v}" for v in videos]
+    return {"videos": links}
+
+@app.post("/subir-video")
+async def subir_video(file: UploadFile = File(...)):
+    import os
+    if not os.path.exists("videos_recibidos"):
+        os.makedirs("videos_recibidos")
+    file_path = f"videos_recibidos/{file.filename}"
+    with open(file_path, "wb") as buffer:
+        buffer.write(await file.read())
+    return {"video_id": file.filename, "mensaje": "Éxito"}
+
     
     videos = os.listdir("videos_recibidos")
-    # Asegúrate de que esta URL sea la de TU proyecto en Render
+
     links = [f"https://videitos-backend.onrender.com/descargar/{v}" for v in videos]
     return {"videos": links}
     
     videos = os.listdir("videos_recibidos")
-    # Generamos la URL completa para cada video para que Flutter los pueda abrir
+    
     links = [f"https://videitos-backend.onrender.com/descargar/{v}" for v in videos]
     return {"videos": links}
 
@@ -118,6 +127,7 @@ async def descargar_video(nombre_video: str):
     from fastapi.responses import FileResponse
     path = f"videos_recibidos/{nombre_video}"
     return FileResponse(path)
+
 
 
 
