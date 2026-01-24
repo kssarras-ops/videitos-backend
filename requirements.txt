@@ -6,4 +6,21 @@ psycopg2-binary
 python-dotenv
 pydantic
 cloudinary
+from supabase import create_client, Client
+
+url_db = "TU_SUPABASE_URL"
+key_db = "TU_SUPABASE_ANON_KEY"
+supabase: Client = create_client(url_db, key_db)
+
+@app.post("/subir-video")
+async def subir(file: UploadFile = File(...)):
+    
+    res_cloud = cloudinary.uploader.upload(file.file, resource_type="video")
+    video_url = res_cloud['secure_url']
+    
+    data = {"url": video_url, "nombre": file.filename}
+    supabase.table("videos").insert(data).execute()
+    
+    return {"mensaje": "Guardado permanente"}
+
 
