@@ -6,6 +6,7 @@ psycopg2-binary
 python-dotenv
 pydantic
 cloudinary
+supabase
 from supabase import create_client, Client
 
 url_db = "TU_SUPABASE_URL"
@@ -22,5 +23,6 @@ async def subir(file: UploadFile = File(...)):
     supabase.table("videos").insert(data).execute()
     
     return {"mensaje": "Guardado permanente"}
+
 
 
